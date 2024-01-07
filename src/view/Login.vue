@@ -18,6 +18,7 @@ const login = async () => {
     router.push('/')
   } catch (err) {
     console.log(err.response)
+    alert(err.response?.data?.message)
   }
 }
 </script>
