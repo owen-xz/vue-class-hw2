@@ -1,159 +1,426 @@
 <script setup>
-import { ref } from 'vue'
-const products = ref([
-  {
-    category: '甜甜圈',
-    content: '尺寸：14x14cm',
-    description:
-      '濃郁的草莓風味，中心填入滑順不膩口的卡士達內餡，帶來滿滿幸福感！',
-    id: '-L9tH8jxVb2Ka_DYPwng',
-    is_enabled: 1,
-    origin_price: 150,
-    price: 99,
-    title: '草莓莓果夾心圈',
-    unit: '個',
-    num: 10,
-    imageUrl:
-      'https://images.unsplash.com/photo-1583182332473-b31ba08929c8?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NzR8fGRvbnV0fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60',
-    imagesUrl: [
-      'https://images.unsplash.com/photo-1626094309830-abbb0c99da4a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2832&q=80',
-      'https://images.unsplash.com/photo-1559656914-a30970c1affd?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTY0fHxkb251dHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60',
-    ],
-  },
-  {
-    category: '蛋糕',
-    content: '尺寸：6寸',
-    description:
-      '蜜蜂蜜蛋糕，夾層夾上酸酸甜甜的檸檬餡，清爽可口的滋味讓人口水直流！',
-    id: '-McJ-VvcwfN1_Ye_NtVA',
-    is_enabled: 16,
-    origin_price: 1000,
-    price: 900,
-    title: '蜂蜜檸檬蛋糕',
-    unit: '個',
-    num: 1,
-    imageUrl:
-      'https://images.unsplash.com/photo-1627834377411-8da5f4f09de8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1001&q=80',
-    imagesUrl: [
-      'https://images.unsplash.com/photo-1618888007540-2bdead974bbb?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=987&q=80',
-    ],
-  },
-  {
-    category: '蛋糕',
-    content: '尺寸：6寸',
-    description: '法式煎薄餅加上濃郁可可醬，呈現經典的美味及口感。',
-    id: '-McJ-VyqaFlLzUMmpPpm',
-    is_enabled: 1,
-    origin_price: 700,
-    price: 600,
-    title: '暗黑千層',
-    unit: '個',
-    num: 15,
-    imageUrl:
-      'https://images.unsplash.com/photo-1505253149613-112d21d9f6a9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NDZ8fGNha2V8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60',
-    imagesUrl: [
-      'https://images.unsplash.com/flagged/photo-1557234985-425e10c9d7f1?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTA5fHxjYWtlfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60',
-      'https://images.unsplash.com/photo-1540337706094-da10342c93d8?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NDR8fGNha2V8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60',
-    ],
-  },
-])
-const product = ref(null)
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
+import { config } from '@/assets/mixins'
+import { Modal } from 'bootstrap'
+
+const products = ref([])
+const product = ref({
+  id: '',
+  title: '',
+  category: '',
+  origin_price: null,
+  price: null,
+  unit: '',
+  description: '',
+  content: '',
+  is_enabled: 1,
+  imageUrl: '',
+  imagesUrl: [],
+})
+const delProduct = ref({
+  id: '',
+  title: '',
+})
+
+const productModal = ref(null)
+const productModalRef = ref(null)
+
+const delProductModal = ref(null)
+const delProductModalRef = ref(null)
+
+const getProducts = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+        import.meta.env.VITE_HEXAPI_PATH
+      }/admin/products?page=1`,
+      config
+    )
+    products.value = res.data.products
+  } catch (err) {
+    alert(err.response?.data?.message)
+  }
+}
+const createProduct = async () => {
+  try {
+    const data = {
+      data: product.value,
+    }
+    await axios.post(
+      `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+        import.meta.env.VITE_HEXAPI_PATH
+      }/admin/product`,
+      data,
+      config
+    )
+    await getProducts()
+    productModal.value.hide()
+  } catch (err) {
+    alert(err.response?.data?.message)
+  }
+}
+const putProduct = async () => {
+  try {
+    const data = {
+      data: product.value,
+    }
+    await axios.put(
+      `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+        import.meta.env.VITE_HEXAPI_PATH
+      }/admin/product/${product.value.id}`,
+      data,
+      config
+    )
+    await getProducts()
+    productModal.value.hide()
+  } catch (err) {
+    alert(err.response?.data?.message)
+  }
+}
+const deleteProduct = async () => {
+  try {
+    await axios.delete(
+      `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+        import.meta.env.VITE_HEXAPI_PATH
+      }/admin/product/${delProduct.value.id}`,
+      config
+    )
+    await getProducts()
+    delProductModal.value.hide()
+  } catch (err) {
+    alert(err.response?.data?.message)
+  }
+}
+
+const showProductModal = (item = null) => {
+  if (item) {
+    const {
+      id,
+      title,
+      category,
+      origin_price,
+      price,
+      unit,
+      description,
+      content,
+      is_enabled,
+      imageUrl,
+      imagesUrl,
+    } = item
+    product.value = {
+      id,
+      title,
+      category,
+      origin_price,
+      price,
+      unit,
+      description,
+      content,
+      is_enabled,
+      imageUrl,
+      imagesUrl,
+    }
+  } else {
+    product.value = {
+      id: '',
+      title: '',
+      category: '',
+      origin_price: null,
+      price: null,
+      unit: '',
+      description: '',
+      content: '',
+      is_enabled: 1,
+      imageUrl: '',
+      imagesUrl: [],
+    }
+  }
+  productModal.value.show()
+}
+const showDelProductModal = (id, title) => {
+  delProduct.value = {
+    id,
+    title,
+  }
+  delProductModal.value.show()
+}
+
+const confirmProductModal = () => {
+  if (product.value.id) {
+    putProduct()
+  } else {
+    createProduct()
+  }
+}
+
+onMounted(() => {
+  productModal.value = new Modal(productModalRef.value)
+  delProductModal.value = new Modal(delProductModalRef.value)
+  getProducts()
+})
 </script>
 
 <template>
   <div class="container">
-    <div class="row py-3">
-      <div class="col-md-6">
-        <h2>產品列表</h2>
-        <table class="table table-hover mt-4">
-          <thead>
-            <tr>
-              <th width="150">產品名稱</th>
-              <th width="120">原價</th>
-              <th width="120">售價</th>
-              <th width="150">是否啟用</th>
-              <th width="120">查看細節</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in products" :key="item.id">
-              <td width="150">{{ item.title }}</td>
-              <td width="120">{{ item.origin_price }}</td>
-              <td width="120">{{ item.price }}</td>
-              <td width="150">
-                <span v-if="item.is_enabled" class="text-success">啟用</span>
-                <span v-else>未啟用</span>
-              </td>
-              <td width="120">
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  @click="product = item"
-                >
-                  查看細節
+    <div class="text-end mt-4">
+      <button class="btn btn-primary" @click="showProductModal">
+        建立新的產品
+      </button>
+    </div>
+    <table class="table mt-4">
+      <thead>
+        <tr>
+          <th width="120">分類</th>
+          <th>產品名稱</th>
+          <th width="120">原價</th>
+          <th width="120">售價</th>
+          <th width="100">是否啟用</th>
+          <th width="120">編輯</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in products" :key="item.id">
+          <td>{{ item.category }}</td>
+          <td>{{ item.title }}</td>
+          <td class="text-end">${{ item.origin_price }}</td>
+          <td class="text-end">${{ item.price }}</td>
+          <td>
+            <span v-if="item.is_enabled" class="text-success">啟用</span>
+            <span v-else>未啟用</span>
+          </td>
+          <td>
+            <div class="btn-group">
+              <button
+                type="button"
+                class="btn btn-outline-primary btn-sm"
+                @click="showProductModal(item)"
+              >
+                編輯
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                @click="showDelProductModal(item.id, item.title)"
+              >
+                刪除
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Modal -->
+  <div
+    id="productModal"
+    ref="productModalRef"
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="productModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content border-0">
+        <div class="modal-header bg-dark text-white">
+          <h5 id="productModalLabel" class="modal-title">
+            <span>新增產品</span>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="mb-2">
+                <div class="mb-3">
+                  <label for="imageUrl" class="form-label">輸入圖片網址</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="請輸入圖片連結"
+                    v-model="product.imageUrl"
+                  />
+                </div>
+                <img class="img-fluid" :src="product.imageUrl" alt="" />
+              </div>
+              <!-- <div>
+                <button class="btn btn-outline-primary btn-sm d-block w-100">
+                  新增圖片
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p>
-          目前有 <span>{{ products.length }}</span> 項產品
-        </p>
-      </div>
-      <div class="col-md-6">
-        <h2>單一產品細節</h2>
-        <template v-if="product">
-          <div class="card mb-3">
-            <img
-              :src="product.imageUrl"
-              class="card-img-top primary-image"
-              alt="主圖"
-            />
-            <div class="card-body">
-              <h5 class="card-title">
-                {{ product.title }}
-                <span class="badge bg-primary ms-2">{{
-                  product.category
-                }}</span>
-              </h5>
-              <p class="card-text">商品描述：{{ product.description }}</p>
-              <p class="card-text">商品內容：{{ product.content }}</p>
-              <div class="d-flex">
-                <p class="card-text me-2">{{ product.price }}</p>
-                <p class="card-text text-secondary">
-                  <del>{{ product.origin_price }}</del>
-                </p>
-                元 / {{ product.unit }}
+              </div>
+              <div v-else>
+                <button class="btn btn-outline-danger btn-sm d-block w-100">
+                  刪除圖片
+                </button>
+              </div> -->
+            </div>
+            <div class="col-sm-8">
+              <div class="mb-3">
+                <label for="title" class="form-label">標題</label>
+                <input
+                  id="title"
+                  type="text"
+                  class="form-control"
+                  placeholder="請輸入標題"
+                  v-model="product.title"
+                />
+              </div>
+
+              <div class="row">
+                <div class="mb-3 col-md-6">
+                  <label for="category" class="form-label">分類</label>
+                  <input
+                    id="category"
+                    type="text"
+                    class="form-control"
+                    placeholder="請輸入分類"
+                    v-model="product.category"
+                  />
+                </div>
+                <div class="mb-3 col-md-6">
+                  <label for="price" class="form-label">單位</label>
+                  <input
+                    id="unit"
+                    type="text"
+                    class="form-control"
+                    placeholder="請輸入單位"
+                    v-model="product.unit"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="mb-3 col-md-6">
+                  <label for="origin_price" class="form-label">原價</label>
+                  <input
+                    id="origin_price"
+                    type="number"
+                    min="0"
+                    class="form-control"
+                    placeholder="請輸入原價"
+                    v-model="product.origin_price"
+                  />
+                </div>
+                <div class="mb-3 col-md-6">
+                  <label for="price" class="form-label">售價</label>
+                  <input
+                    id="price"
+                    type="number"
+                    min="0"
+                    class="form-control"
+                    placeholder="請輸入售價"
+                    v-model="product.price"
+                  />
+                </div>
+              </div>
+              <hr />
+
+              <div class="mb-3">
+                <label for="description" class="form-label">產品描述</label>
+                <textarea
+                  id="description"
+                  type="text"
+                  class="form-control"
+                  placeholder="請輸入產品描述"
+                  v-model="product.description"
+                >
+                </textarea>
+              </div>
+              <div class="mb-3">
+                <label for="content" class="form-label">說明內容</label>
+                <textarea
+                  id="description"
+                  type="text"
+                  class="form-control"
+                  placeholder="請輸入說明內容"
+                  v-model="product.content"
+                >
+                </textarea>
+              </div>
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    id="is_enabled"
+                    class="form-check-input"
+                    type="checkbox"
+                    :true-value="1"
+                    :false-value="0"
+                    v-model="product.is_enabled"
+                  />
+                  <label class="form-check-label" for="is_enabled"
+                    >是否啟用</label
+                  >
+                </div>
               </div>
             </div>
           </div>
-          <div>
-            <img
-              v-for="(item, index) in product.imagesUrl"
-              :key="index"
-              :src="item"
-              alt=""
-              class="images m-2"
-            />
-          </div>
-        </template>
-        <p class="text-secondary" v-else>請選擇一個商品查看</p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="confirmProductModal"
+          >
+            確認
+          </button>
+        </div>
       </div>
     </div>
   </div>
+  <div
+    id="delProductModal"
+    ref="delProductModalRef"
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="delProductModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content border-0">
+        <div class="modal-header bg-danger text-white">
+          <h5 id="delProductModalLabel" class="modal-title">
+            <span>刪除產品</span>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          是否刪除
+          <strong class="text-danger">{{ delProduct.title }}</strong>
+          商品(刪除後將無法恢復)。
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            取消
+          </button>
+          <button type="button" class="btn btn-danger" @click="deleteProduct">
+            確認刪除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal -->
 </template>
 
-<style scoped>
-img {
-  object-fit: contain;
-  max-width: 100%;
-}
-
-.primary-image {
-  height: 300px;
-}
-
-.images {
-  height: 150px;
-}
-</style>
+<style scoped></style>
