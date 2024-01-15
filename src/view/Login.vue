@@ -17,7 +17,6 @@ const login = async () => {
     document.cookie = `hexToken=${token}; expires=${new Date(expired)};`
     router.push('/')
   } catch (err) {
-    console.log(err.response)
     alert(err.response?.data?.message)
   }
 }
