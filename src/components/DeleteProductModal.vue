@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { config } from '@/assets/mixins'
+import { getConfig } from '@/assets/mixins'
 const props = defineProps({
   delProduct: {},
 })
@@ -11,7 +11,7 @@ const deleteProduct = async () => {
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/product/${props.delProduct.id}`,
-      config
+      getConfig()
     )
     emit('updateList')
   } catch (err) {

@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
-import { config } from '@/assets/mixins'
+import { getConfig } from '@/assets/mixins'
 import { Modal } from 'bootstrap'
 import ProductModal from '../components/ProductModal.vue'
 import DeleteProductModal from '../components/DeleteProductModal.vue'
@@ -40,7 +40,7 @@ const getProducts = async (page = 1) => {
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/products?page=${page}`,
-      config
+      getConfig()
     )
     products.value = res.data.products
     pageData.value.totalPages = res.data.pagination.total_pages

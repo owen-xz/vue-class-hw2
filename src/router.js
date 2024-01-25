@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { config } from '@/assets/mixins'
+import { getConfig } from '@/assets/mixins'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import ProductManagement from './view/ProductManagement.vue'
 import Login from './view/Login.vue'
@@ -9,7 +9,7 @@ const loginCheck = async(to, from) => {
     await axios.post(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/user/check`,
       {},
-      config
+      getConfig()
     )
   } catch (err) {
     alert(err.response?.data?.message)

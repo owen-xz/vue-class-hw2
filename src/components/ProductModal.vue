@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { config } from '@/assets/mixins'
+import { getConfig } from '@/assets/mixins'
 
 const props = defineProps({
   product: {},
@@ -23,7 +23,7 @@ const createProduct = async () => {
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/product`,
       data,
-      config
+      getConfig()
     )
     emit('updateList')
   } catch (err) {
@@ -40,7 +40,7 @@ const putProduct = async () => {
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/product/${props.product.id}`,
       data,
-      config
+      getConfig()
     )
     emit('updateList')
   } catch (err) {

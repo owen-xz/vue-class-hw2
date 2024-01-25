@@ -1,7 +1,11 @@
-const token = document.cookie
+const getToken = () => {
+  return document.cookie
   .split('; ')
   .find((row) => row.startsWith('hexToken='))
   ?.split('=')[1]
-export const config = {
-  headers: { Authorization: token },
+}
+export const getConfig = () => {
+  return {
+    headers: { Authorization: getToken() },
+  }
 }
