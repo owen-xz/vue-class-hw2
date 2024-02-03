@@ -3,6 +3,7 @@ import { getConfig } from '@/assets/mixins'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import ProductManagement from './view/ProductManagement.vue'
 import Login from './view/Login.vue'
+import ProductList from './view/ProductList.vue'
 
 const loginCheck = async(to, from) => {
   try {
@@ -18,7 +19,8 @@ const loginCheck = async(to, from) => {
 }
 
 const routes = [
-  { path: '/', component: ProductManagement, beforeEnter: loginCheck },
+  { path: '/', component: ProductList },
+  { path: '/admin', component: ProductManagement, beforeEnter: loginCheck },
   { path: '/login', component: Login },
 ]
 

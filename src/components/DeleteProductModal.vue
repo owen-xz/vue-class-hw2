@@ -1,19 +1,19 @@
 <script setup>
 import axios from 'axios'
 import { getConfig } from '@/assets/mixins'
-const props = defineProps({
-  delProduct: {},
-})
-const emit = defineEmits(['updateList'])
+import { useStore } from '../store'
+
+const store = useStore()
 const deleteProduct = async () => {
   try {
     await axios.delete(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
-      }/admin/product/${props.delProduct.id}`,
+      }/admin/product/${store.delProduct.id}`,
       getConfig()
     )
-    emit('updateList')
+    await store.getAdminProducts()
+    store.delProductModal.hide()
   } catch (err) {
     alert(err.response?.data?.message)
   }
@@ -22,7 +22,6 @@ const deleteProduct = async () => {
 <template>
   <div
     id="delProductModal"
-    ref="delProductModalRef"
     class="modal fade"
     tabindex="-1"
     aria-labelledby="delProductModalLabel"
@@ -41,9 +40,9 @@ const deleteProduct = async () => {
             aria-label="Close"
           ></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" v-if="store.delProduct">
           是否刪除
-          <strong class="text-danger">{{ props.delProduct.title }}</strong>
+          <strong class="text-danger">{{ store.delProduct.title }}</strong>
           商品(刪除後將無法恢復)。
         </div>
         <div class="modal-footer">

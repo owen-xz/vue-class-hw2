@@ -1,13 +1,11 @@
 <script setup>
 import axios from 'axios'
 import { getConfig } from '@/assets/mixins'
+import { useStore } from '../store'
 
-const props = defineProps({
-  product: {},
-})
-const emit = defineEmits(['updateList'])
-const confirmProductModal = () => {
-  if (props.product.id) {
+const store = useStore()
+const confirmEditProductModal = () => {
+  if (store.editProduct.id) {
     putProduct()
   } else {
     createProduct()
@@ -16,7 +14,7 @@ const confirmProductModal = () => {
 const createProduct = async () => {
   try {
     const data = {
-      data: props.product,
+      data: store.editProduct,
     }
     await axios.post(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
@@ -25,7 +23,8 @@ const createProduct = async () => {
       data,
       getConfig()
     )
-    emit('updateList')
+    await store.getAdminProducts()
+    store.editProductModal.hide()
   } catch (err) {
     alert(err.response?.data?.message)
   }
@@ -33,34 +32,34 @@ const createProduct = async () => {
 const putProduct = async () => {
   try {
     const data = {
-      data: props.product,
+      data: store.editProduct,
     }
     await axios.put(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
-      }/admin/product/${props.product.id}`,
+      }/admin/product/${store.editProduct.id}`,
       data,
       getConfig()
     )
-    emit('updateList')
+    await store.getAdminProducts()
+    store.editProductModal.hide()
   } catch (err) {
-    console.log(err.response)
     alert(err.response?.data?.message)
   }
 }
 </script>
 <template>
   <div
-    id="productModal"
+    id="editProductModal"
     class="modal fade"
     tabindex="-1"
-    aria-labelledby="productModalLabel"
+    aria-labelledby="editProductModalLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-xl">
       <div class="modal-content border-0">
         <div class="modal-header bg-dark text-white">
-          <h5 id="productModalLabel" class="modal-title">
+          <h5 id="editProductModalLabel" class="modal-title">
             <span>新增產品</span>
           </h5>
           <button
@@ -70,7 +69,7 @@ const putProduct = async () => {
             aria-label="Close"
           ></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" v-if="store.editProduct">
           <div class="row">
             <div class="col-sm-4">
               <div class="mb-2">
@@ -80,10 +79,14 @@ const putProduct = async () => {
                     type="text"
                     class="form-control"
                     placeholder="請輸入圖片連結"
-                    v-model="props.product.imageUrl"
+                    v-model="store.editProduct.imageUrl"
                   />
                 </div>
-                <img class="img-fluid" :src="props.product.imageUrl" alt="" />
+                <img
+                  class="img-fluid"
+                  :src="store.editProduct.imageUrl"
+                  alt=""
+                />
               </div>
               <!-- <div>
                 <button class="btn btn-outline-primary btn-sm d-block w-100">
@@ -104,7 +107,7 @@ const putProduct = async () => {
                   type="text"
                   class="form-control"
                   placeholder="請輸入標題"
-                  v-model="props.product.title"
+                  v-model="store.editProduct.title"
                 />
               </div>
 
@@ -116,7 +119,7 @@ const putProduct = async () => {
                     type="text"
                     class="form-control"
                     placeholder="請輸入分類"
-                    v-model="props.product.category"
+                    v-model="store.editProduct.category"
                   />
                 </div>
                 <div class="mb-3 col-md-6">
@@ -126,7 +129,7 @@ const putProduct = async () => {
                     type="text"
                     class="form-control"
                     placeholder="請輸入單位"
-                    v-model="props.product.unit"
+                    v-model="store.editProduct.unit"
                   />
                 </div>
               </div>
@@ -140,7 +143,7 @@ const putProduct = async () => {
                     min="0"
                     class="form-control"
                     placeholder="請輸入原價"
-                    v-model="props.product.origin_price"
+                    v-model="store.editProduct.origin_price"
                   />
                 </div>
                 <div class="mb-3 col-md-6">
@@ -151,7 +154,7 @@ const putProduct = async () => {
                     min="0"
                     class="form-control"
                     placeholder="請輸入售價"
-                    v-model="props.product.price"
+                    v-model="store.editProduct.price"
                   />
                 </div>
               </div>
@@ -164,7 +167,7 @@ const putProduct = async () => {
                   type="text"
                   class="form-control"
                   placeholder="請輸入產品描述"
-                  v-model="props.product.description"
+                  v-model="store.editProduct.description"
                 >
                 </textarea>
               </div>
@@ -175,7 +178,7 @@ const putProduct = async () => {
                   type="text"
                   class="form-control"
                   placeholder="請輸入說明內容"
-                  v-model="props.product.content"
+                  v-model="store.editProduct.content"
                 >
                 </textarea>
               </div>
@@ -187,7 +190,7 @@ const putProduct = async () => {
                     type="checkbox"
                     :true-value="1"
                     :false-value="0"
-                    v-model="props.product.is_enabled"
+                    v-model="store.editProduct.is_enabled"
                   />
                   <label class="form-check-label" for="is_enabled"
                     >是否啟用</label
@@ -208,7 +211,7 @@ const putProduct = async () => {
           <button
             type="button"
             class="btn btn-primary"
-            @click="confirmProductModal"
+            @click="confirmEditProductModal"
           >
             確認
           </button>
