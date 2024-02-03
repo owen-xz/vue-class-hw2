@@ -19,6 +19,12 @@ export const useStore = defineStore('store', {
     // doubleCount: (state) => state.count * 2,
   },
   actions: {
+    initPageData() {
+      this.pageData = {
+        totalPages: 1,
+        nowPage: 1,
+      }
+    },
     async getAdminProducts(page = 1) {
       try {
         const res = await axios.get(
@@ -37,7 +43,6 @@ export const useStore = defineStore('store', {
       try {
         const res = await axios.get(`${import.meta.env.VITE_HEXAPI_URL}/V2/api/${import.meta.env.VITE_HEXAPI_PATH}/cart`)
         this.cart = res.data.data.carts
-          .filter(item => item.qty > 0)
           .map(item => {
             return {
               id: item.id,

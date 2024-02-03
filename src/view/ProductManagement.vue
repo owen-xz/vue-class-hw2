@@ -64,6 +64,8 @@ const showDelProductModal = (id, title) => {
 }
 
 onMounted(() => {
+  store.initPageData()
+  store.adminProducts = []
   store.getAdminProducts()
 })
 </script>

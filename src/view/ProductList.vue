@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <table class="table align-middle">
       <thead>
         <tr>
@@ -79,6 +79,7 @@ const changePage = async (page) => {
   store.pageData.nowPage = page
 }
 onMounted(() => {
+  store.initPageData()
   getProducts()
 })
 

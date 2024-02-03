@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <router-link class="navbar-brand" to="/">Navbar</router-link>
+      <router-link class="navbar-brand" to="/">首頁</router-link>
       <button
         class="navbar-toggler"
         type="button"
