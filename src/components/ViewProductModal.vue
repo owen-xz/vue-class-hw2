@@ -15,7 +15,7 @@ const store = useStore()
       <div class="modal-content border-0">
         <div class="modal-header bg-dark text-white">
           <h5 id="viewProductModalLabel" class="modal-title">
-            <span>產品詳情</span>
+            <span>商品詳情</span>
           </h5>
           <button
             type="button"
