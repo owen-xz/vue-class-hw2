@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import ProductManagement from './view/ProductManagement.vue'
 import Login from './view/Login.vue'
 import ProductList from './view/ProductList.vue'
+import Cart from './view/Cart.vue'
 
 const loginCheck = async(to, from) => {
   try {
@@ -22,6 +23,7 @@ const routes = [
   { path: '/', component: ProductList },
   { path: '/admin', component: ProductManagement, beforeEnter: loginCheck },
   { path: '/login', component: Login },
+  { path: '/cart', component: Cart },
 ]
 
 export default createRouter({

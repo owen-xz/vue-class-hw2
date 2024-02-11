@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container mt-4">
     <table class="table align-middle">
       <thead>
         <tr>
@@ -58,10 +58,13 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Pagination from '../components/Pagination.vue'
 import { useStore } from '../store'
+import { useLoading } from 'vue-loading-overlay'
 
 const store = useStore()
+const loading = useLoading()
 const products = ref([])
 const getProducts = async (page = 1) => {
+  const loader = loading.show()
   try {
     const res = await axios.get(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
@@ -70,8 +73,10 @@ const getProducts = async (page = 1) => {
     )
     products.value = res.data.products
     store.pageData.totalPages = res.data.pagination.total_pages
+    loader.hide()
   } catch (err) {
     alert(err.response?.data?.message)
+    loader.hide()
   }
 }
 const changePage = async (page) => {
@@ -91,25 +96,30 @@ const addCart = async (productId) => {
     },
   }
   try {
+    const loader = loading.show()
     const res = await axios.post(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
       }/cart`,
       data
     )
-    const index = store.cart.findIndex((item) => item.id === productId)
+    const index = store.cart.findIndex((item) => item.productId === productId)
     if (index === -1) {
       store.cart.push({
         id: res.data.data.id,
         productId: res.data.data.product_id,
         title: res.data.data.product.title,
+        price: res.data.data.product.price,
         qty: res.data.data.qty,
       })
     } else {
       store.cart[index].qty++
     }
+    alert(res.data.message)
+    loader.hide()
   } catch (err) {
     alert(err.response?.data?.message)
+    loader.hide()
   }
 }
 </script>

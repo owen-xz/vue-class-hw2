@@ -2,8 +2,10 @@
 import axios from 'axios'
 import { getConfig } from '@/assets/mixins'
 import { useStore } from '../store'
+import { useLoading } from 'vue-loading-overlay'
 
 const store = useStore()
+const loading = useLoading()
 const confirmEditProductModal = () => {
   if (store.editProduct.id) {
     putProduct()
@@ -12,11 +14,12 @@ const confirmEditProductModal = () => {
   }
 }
 const createProduct = async () => {
+  const loader = loading.show()
   try {
     const data = {
       data: store.editProduct,
     }
-    await axios.post(
+    const res = await axios.post(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/product`,
@@ -24,17 +27,21 @@ const createProduct = async () => {
       getConfig()
     )
     await store.getAdminProducts()
+    alert(res.data.message)
     store.editProductModal.hide()
+    loader.hide()
   } catch (err) {
     alert(err.response?.data?.message)
+    loader.hide()
   }
 }
 const putProduct = async () => {
+  const loader = loading.show()
   try {
     const data = {
       data: store.editProduct,
     }
-    await axios.put(
+    const res = await axios.put(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/product/${store.editProduct.id}`,
@@ -42,9 +49,12 @@ const putProduct = async () => {
       getConfig()
     )
     await store.getAdminProducts()
+    alert(res.data.message)
     store.editProductModal.hide()
+    loader.hide()
   } catch (err) {
     alert(err.response?.data?.message)
+    loader.hide()
   }
 }
 </script>

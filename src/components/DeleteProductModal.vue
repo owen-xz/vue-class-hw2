@@ -2,20 +2,26 @@
 import axios from 'axios'
 import { getConfig } from '@/assets/mixins'
 import { useStore } from '../store'
+import { useLoading } from 'vue-loading-overlay'
 
 const store = useStore()
+const loading = useLoading()
 const deleteProduct = async () => {
   try {
-    await axios.delete(
+    const loader = loading.show()
+    const res = await axios.delete(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
         import.meta.env.VITE_HEXAPI_PATH
       }/admin/product/${store.delProduct.id}`,
       getConfig()
     )
     await store.getAdminProducts()
+    alert(res.data.message)
     store.delProductModal.hide()
+    loader.hide()
   } catch (err) {
     alert(err.response?.data?.message)
+    loader.hide()
   }
 }
 </script>

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { getConfig } from './assets/mixins'
+import { useLoading } from 'vue-loading-overlay'
+const loading = useLoading()
 export const useStore = defineStore('store', {
   state: () => ({
     pageData: {
@@ -16,7 +18,17 @@ export const useStore = defineStore('store', {
     cartModal: null
   }),
   getters: {
-    // doubleCount: (state) => state.count * 2,
+    totalCartPrice: (state) => {
+      if(state.cart) {
+        let sum = 0
+        state.cart.forEach(item => {
+          sum += item.qty * item.price
+        })
+        return sum
+      } else {
+        return 0
+      }
+    }
   },
   actions: {
     initPageData() {
@@ -26,6 +38,7 @@ export const useStore = defineStore('store', {
       }
     },
     async getAdminProducts(page = 1) {
+      const loader = loading.show()
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
@@ -35,8 +48,10 @@ export const useStore = defineStore('store', {
         )
         this.adminProducts = res.data.products
         this.pageData.totalPages = res.data.pagination.total_pages
+        loader.hide()
       } catch (err) {
         alert(err.response?.data?.message)
+        loader.hide()
       }
     },
     async getCart() {
@@ -48,11 +63,59 @@ export const useStore = defineStore('store', {
               id: item.id,
               productId: item.product_id,
               title: item.product.title,
+              price: item.product.price,
               qty: item.qty
             }
           })
       } catch (err) {
         alert(err.response?.data?.message)
+      }
+    },
+    async changeCartQty(index, cart) {
+      if (typeof cart.qty !== 'number') return
+      if (cart.qty > 0) {
+        const data = {
+          data: {
+            product_id: cart.productId,
+            qty: cart.qty,
+          },
+        }
+        try {
+          await axios.put(
+            `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+              import.meta.env.VITE_HEXAPI_PATH
+            }/cart/${cart.id}`,
+            data
+          )
+        } catch (err) {
+          alert(err.response?.data?.message)
+        }
+      } else {
+        try {
+          await axios.delete(
+            `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+              import.meta.env.VITE_HEXAPI_PATH
+            }/cart/${cart.id}`
+          )
+          this.cart.splice(index, 1)
+        } catch (err) {
+          alert(err.response?.data?.message)
+        }
+      }
+    },
+    async cleanCart() {
+      const loader = loading.show()
+      try {
+        await axios.delete(
+          `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+            import.meta.env.VITE_HEXAPI_PATH
+          }/carts`
+        )
+        this.cart = []
+        loader.hide()
+      } catch (err) {
+        alert(err.response?.data?.message)
+        loader.hide()
       }
     }
   },
