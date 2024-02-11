@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <router-link class="navbar-brand" to="/">首頁</router-link>
+      <router-link class="navbar-brand" to="/">商品首頁</router-link>
       <button
         class="navbar-toggler"
         type="button"
@@ -16,12 +16,10 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <router-link class="nav-link" to="/admin">商品後臺</router-link>
-          </li>
-          <li class="nav-item">
             <button class="nav-link" @click="showCartModal">購物車</button>
           </li>
         </ul>
+        <router-link class="nav-link" to="/admin">商品後臺</router-link>
       </div>
     </div>
   </nav>
