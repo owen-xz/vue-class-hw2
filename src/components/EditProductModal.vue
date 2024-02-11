@@ -70,7 +70,7 @@ const putProduct = async () => {
       <div class="modal-content border-0">
         <div class="modal-header bg-dark text-white">
           <h5 id="editProductModalLabel" class="modal-title">
-            <span>新增產品</span>
+            <span>{{ store.editProduct?.id ? '編輯' : '新增' }}產品</span>
           </h5>
           <button
             type="button"
