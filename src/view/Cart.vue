@@ -15,14 +15,14 @@
           <tr>
             <th>品名</th>
             <th style="width: 150px">數量</th>
-            <th>單價</th>
+            <th style="width: 150px">單價</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in store.cart" :key="item.id">
             <td>
               {{ item.title }}
-              <div class="text-success">已套用優惠券</div>
+              <!-- <div class="text-success">已套用優惠券</div> -->
             </td>
             <td>
               <div class="input-group input-group-sm">

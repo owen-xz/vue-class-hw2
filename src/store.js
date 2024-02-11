@@ -10,6 +10,8 @@ export const useStore = defineStore('store', {
       nowPage: 1,
     },
     adminProducts: [],
+    viewProduct: null,
+    viewProductModal: null,
     editProduct: null,
     editProductModal: null,
     delProduct: null,
@@ -69,6 +71,40 @@ export const useStore = defineStore('store', {
           })
       } catch (err) {
         alert(err.response?.data?.message)
+      }
+    },
+    async addCart (productId) {
+      const data = {
+        data: {
+          product_id: productId,
+          qty: 1,
+        },
+      }
+      try {
+        const loader = loading.show()
+        const res = await axios.post(
+          `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
+            import.meta.env.VITE_HEXAPI_PATH
+          }/cart`,
+          data
+        )
+        const index = this.cart.findIndex((item) => item.productId === productId)
+        if (index === -1) {
+          this.cart.push({
+            id: res.data.data.id,
+            productId: res.data.data.product_id,
+            title: res.data.data.product.title,
+            price: res.data.data.product.price,
+            qty: res.data.data.qty,
+          })
+        } else {
+          this.cart[index].qty++
+        }
+        alert(res.data.message)
+        loader.hide()
+      } catch (err) {
+        alert(err.response?.data?.message)
+        loader.hide()
       }
     },
     async changeCartQty(index, cart) {

@@ -28,14 +28,18 @@
           </td>
           <td>
             <div class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-outline-secondary">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                @click="showProductModal(item)"
+              >
                 <i class="fas fa-spinner fa-pulse"></i>
                 查看更多
               </button>
               <button
                 type="button"
                 class="btn btn-outline-danger"
-                @click="addCart(item.id)"
+                @click="store.addCart(item.id)"
               >
                 <i class="fas fa-spinner fa-pulse"></i>
                 加到購物車
@@ -88,39 +92,34 @@ onMounted(() => {
   getProducts()
 })
 
-const addCart = async (productId) => {
-  const data = {
-    data: {
-      product_id: productId,
-      qty: 1,
-    },
+const showProductModal = (item) => {
+  const {
+    id,
+    title,
+    category,
+    origin_price,
+    price,
+    unit,
+    description,
+    content,
+    is_enabled,
+    imageUrl,
+    imagesUrl,
+  } = item
+  store.viewProduct = {
+    id,
+    title,
+    category,
+    origin_price,
+    price,
+    unit,
+    description,
+    content,
+    is_enabled,
+    imageUrl,
+    imagesUrl,
   }
-  try {
-    const loader = loading.show()
-    const res = await axios.post(
-      `${import.meta.env.VITE_HEXAPI_URL}/v2/api/${
-        import.meta.env.VITE_HEXAPI_PATH
-      }/cart`,
-      data
-    )
-    const index = store.cart.findIndex((item) => item.productId === productId)
-    if (index === -1) {
-      store.cart.push({
-        id: res.data.data.id,
-        productId: res.data.data.product_id,
-        title: res.data.data.product.title,
-        price: res.data.data.product.price,
-        qty: res.data.data.qty,
-      })
-    } else {
-      store.cart[index].qty++
-    }
-    alert(res.data.message)
-    loader.hide()
-  } catch (err) {
-    alert(err.response?.data?.message)
-    loader.hide()
-  }
+  store.viewProductModal.show()
 }
 </script>
 
