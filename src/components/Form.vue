@@ -1,6 +1,7 @@
 <template>
   <Form @submit="onSubmit">
     <div
+      class="mb-3"
       v-for="{
         as,
         name,

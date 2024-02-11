@@ -2,22 +2,50 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useLoading } from 'vue-loading-overlay'
+import * as Yup from 'yup'
+import Form from '../components/Form.vue'
+
 const router = useRouter()
+const loading = useLoading()
+const formSchema = ref({
+  fields: [
+    {
+      label: 'Email',
+      name: 'username',
+      as: 'input',
+      type: 'email',
+      placeholder: 'name@example.com',
+      rules: Yup.string().email('Email 格式錯誤').required('Email 不得爲空'),
+    },
+    {
+      label: '密碼',
+      name: 'password',
+      as: 'input',
+      type: 'password',
+      placeholder: 'Password',
+      rules: Yup.string().required('密碼不得爲空'),
+    },
+  ],
+})
 const formData = ref({
   username: '',
   password: '',
 })
-const login = async () => {
+const login = async (data) => {
+  const loader = loading.show()
   try {
     const res = await axios.post(
       `${import.meta.env.VITE_HEXAPI_URL}/v2/admin/signin`,
-      formData.value
+      data
     )
     const { token, expired } = res.data
     document.cookie = `hexToken=${token}; expires=${new Date(expired)};`
+    loader.hide()
     router.push('/')
   } catch (err) {
     alert(err.response?.data?.message)
+    loader.hide()
   }
 }
 </script>
@@ -26,39 +54,8 @@ const login = async () => {
   <div class="container text-center pt-5">
     <div class="row justify-content-center">
       <h1 class="h3 mb-3 font-weight-normal">請先登入</h1>
-      <div class="col-8">
-        <form id="form" class="form-signin">
-          <div class="form-floating mb-3">
-            <input
-              type="email"
-              class="form-control"
-              id="username"
-              placeholder="name@example.com"
-              required
-              autofocus
-              v-model="formData.username"
-            />
-            <label for="username">Email address</label>
-          </div>
-          <div class="form-floating">
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              placeholder="Password"
-              required
-              v-model="formData.password"
-            />
-            <label for="password">Password</label>
-          </div>
-          <button
-            class="btn btn-lg btn-primary w-100 mt-3"
-            type="submit"
-            @click.prevent="login"
-          >
-            登入
-          </button>
-        </form>
+      <div class="form-signin text-start">
+        <Form :schema="formSchema" :submitBtn="'登入'" @onSubmit="login" />
       </div>
     </div>
     <p class="mt-5 mb-3 text-muted">&copy; 2021~∞ - 六角學院</p>
@@ -67,9 +64,6 @@ const login = async () => {
 
 <style scoped>
 .form-signin {
-  width: 100%;
   max-width: 330px;
-  padding: 15px;
-  margin: auto;
 }
 </style>
